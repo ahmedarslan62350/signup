@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { verifySchema } from "@/schemas/verifySchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ import { z } from "zod";
 
 const Verify = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof verifySchema>>({
     resolver: zodResolver(verifySchema),
@@ -43,7 +44,7 @@ const Verify = () => {
       }
 
       toast.success(data.message);
-      redirect("/success");
+      router.replace("/");
     } catch (error) {
       console.error(error);
       toast.error("Something went wromg");
