@@ -106,12 +106,12 @@ const generateHTML = async (data: IRegisterSchema) => {
 };
 
 export const transporter = nodemailer.createTransport({
-  host: "in-v3.mailjet.com", // Mailjet SMTP Host
+  host: `${process.env.MAILER_HOST}`, // Mailjet SMTP Host
   port: 465, // Secure SSL port (Use 587 for STARTTLS)
   secure: true, // True for 465, false for 587
   auth: {
-    user: "db4bf86dc877ac7a172f68a4dca2b848", // Mailjet API Key
-    pass: "4d357850fdf8bebf355da5bb54be3d01", // Mailjet Secret Key
+    user: `${process.env.MAILER_USER}`, // Mailjet API Key
+    pass: `${process.env.MAILER_PASS}`, // Mailjet Secret Key
   },
 });
 
@@ -137,7 +137,7 @@ export async function sendEmail({
   if (data) {
     const html = await generateHTML(data);
     const info = await transporter.sendMail({
-      from: '"no-reply" <noreply@vopial.com>',
+      from: `"no-reply" <${process.env.MAILER_EMAIL}>`,
       to: to, // list of receivers
       subject: subject, // Subject line
       text: text, // plain text body
@@ -161,7 +161,7 @@ export async function verifyEmail({
 }) {
   if (data) {
     const info = await transporter.sendMail({
-      from: '"no-reply" <noreply@vopial.com>',
+      from: `"no-reply" <${process.env.MAILER_EMAIL}>`,
       to: to, // list of receivers
       subject: subject, // Subject line
       text: text, // plain text body
