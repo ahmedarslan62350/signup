@@ -16,6 +16,7 @@ export interface IRegisterSchema extends Document {
   agentsNumber?: string;
   portsNumber?: string;
   ipAddress?: string;
+  otp: string;
   campaign: string;
   additionalInfo?: string;
   file: {
@@ -49,17 +50,19 @@ const formSchema = new Schema<IRegisterSchema>(
     campaign: { type: String, required: true, minlength: 8 },
     additionalInfo: { type: String, required: false },
     role: { type: String, default: "user" },
+    otp: { type: String, default: "" },
     file: {
       path: { type: String, required: false },
       filename: { type: String, required: false },
       size: { type: Number, required: false },
-      mimetype: { type: String, required: false }
-    }
+      mimetype: { type: String, required: false },
+    },
   },
   { timestamps: true }
 );
 
 const RegisterModel =
-  mongoose.models.Register || mongoose.model<IRegisterSchema>("Register", formSchema);
+  mongoose.models.Register ||
+  mongoose.model<IRegisterSchema>("Register", formSchema);
 
 export default RegisterModel;

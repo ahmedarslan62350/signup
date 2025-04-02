@@ -147,3 +147,27 @@ export async function sendEmail({
   }
   return null;
 }
+
+export async function verifyEmail({
+  to,
+  subject = "null",
+  text = "null",
+  data = null,
+}: {
+  to: string;
+  subject: string;
+  text: string;
+  data: null | IRegisterSchema;
+}) {
+  if (data) {
+    const info = await transporter.sendMail({
+      from: '"no-reply" <noreply@vopial.com>',
+      to: to, // list of receivers
+      subject: subject, // Subject line
+      text: text, // plain text body
+      html: `<p>Hey, your otp code is : ${data.otp}</p>`,
+    });
+    return info;
+  }
+  return null;
+}

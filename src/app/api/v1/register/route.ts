@@ -1,4 +1,4 @@
-import registerModel from "@/models/register";
+import registerModel, { IRegisterSchema } from "@/models/register";
 import connectMongo from "@/lib/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
 import { formSchema } from "@/schemas/signupForm";
@@ -6,7 +6,7 @@ import { ApiError } from "next/dist/server/api-utils";
 import path from "path";
 import { writeFile } from "fs/promises";
 import { v4 as uuidv4 } from "uuid";
-import { sendEmail } from "@/config/emailService";
+import { verifyEmail } from "@/config/emailService";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // Check if user already exists
     const existingUser = await registerModel.findOne({
-      email: data.contactEmail,
+      contactEmail: data.contactEmail,
     });
 
     if (existingUser) {
@@ -67,7 +67,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Handle File Upload
     let fileInfo = null;
     const file = formData.get("file") as File | null;
 
@@ -97,25 +96,17 @@ export async function POST(req: NextRequest) {
     const user = new registerModel({
       ...data,
       file: fileInfo,
+    }) as IRegisterSchema;
+
+    user.otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await user.save();
+    await verifyEmail({
+      to: user.contactEmail,
+      data: user,
+      subject: "hello",
+      text: "OTP",
     });
-
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "";
-
-    await Promise.all([
-      user.save(),
-      sendEmail({
-        to: data.contactEmail,
-        subject: "Welcome",
-        text: "Hey",
-        data: user,
-      }),
-      sendEmail({
-        to: ADMIN_EMAIL,
-        subject: "Welcome",
-        text: "Hey",
-        data: user,
-      }),
-    ]);
 
     return NextResponse.json({
       success: true,

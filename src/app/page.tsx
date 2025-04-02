@@ -4,7 +4,6 @@ import type React from "react";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,13 +29,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { setCookie } from "@/lib/cookiesHandler";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [formStep, setFormStep] = useState(0);
   const [bussinessSelectValue, setBussinessSelectValue] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [isNextButton, setIsNextButton] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -84,6 +88,7 @@ export default function SignupPage() {
   }, [form, watchCompanyName, watchPhysicalAddress]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
+    setIsLoading(true);
     const f = new FormData();
 
     f.append("additionalInfo", values.additionalInfo || "");
@@ -115,11 +120,20 @@ export default function SignupPage() {
 
     try {
       const { data } = await axios.post("/api/v1/register", f);
-      console.log("Success:", data);
+      if (!data.success) {
+        toast.error(data.message);
+        return;
+      }
+
+      await setCookie("email", form.getValues("contactEmail"));
+      form.reset();
+      router.replace("/verify");
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.log(error);
+      toast.error("Error while submiting");
     } finally {
       setFormSubmitted(true);
+      setIsLoading(false);
     }
   };
 
@@ -148,33 +162,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-blue-50 to-yellow-50 p-4 md:p-8">
       <div className="mx-auto max-w-4xl">
-        {formSubmitted ? (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="flex flex-col items-center justify-center space-y-4 rounded-lg bg-white p-8 shadow-lg"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1, rotate: 360 }}
-              transition={{ duration: 0.5 }}
-            >
-              <CheckCircle size={80} className="text-purple-600" />
-            </motion.div>
-            <h2 className="text-2xl font-bold text-purple-800">
-              Registration Complete!
-            </h2>
-            <p className="text-center text-gray-600">
-              Thank you for signing up. We&apos;ll be in touch shortly.
-            </p>
-            <Button
-              onClick={() => setFormSubmitted(false)}
-              className="mt-4 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-            >
-              Return to Form
-            </Button>
-          </motion.div>
-        ) : (
+        {formSubmitted ? null : (
           <Form {...form}>
             <motion.div
               initial={{ y: 20, opacity: 0 }}
@@ -896,7 +884,7 @@ export default function SignupPage() {
                             type="submit"
                             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                           >
-                            Complete Signup
+                            {isLoading ? "Loading..." : "Complete Signup"}
                           </Button>
                         </motion.div>
                       </motion.div>
