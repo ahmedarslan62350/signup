@@ -40,12 +40,12 @@ export async function POST(req: NextRequest) {
       physicalAddress: formData.get("physicalAddress") as string,
       portsNumber: formData.get("portsNumber") as string,
       website: formData.get("website") as string,
+      nationalId: formData.get("nationalId"),
     };
 
     // Validate extracted data using Zod schema
     const validation = formSchema.safeParse(extractedData);
     if (!validation.success) {
-      console.log("VALIDATION FAILED", validation.error.errors);
       return NextResponse.json({
         success: false,
         message: "Invalid form data",

@@ -10,7 +10,9 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -30,14 +32,17 @@ import {
 } from "@/components/ui/form";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useCountries } from "use-react-countries";
 import { toast } from "sonner";
 import { setCookie } from "@/lib/cookiesHandler";
 import Link from "next/link";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { countries } = useCountries();
   const [formStep, setFormStep] = useState(0);
   const [bussinessSelectValue, setBussinessSelectValue] = useState("");
+  const [country, setCountry] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [radio, setRadio] = useState("");
@@ -60,6 +65,7 @@ export default function SignupPage() {
       state: "",
       zipCode: "",
       country: "",
+      nationalId: "",
 
       businessType: "",
       campaign: "",
@@ -81,6 +87,55 @@ export default function SignupPage() {
   const watchPhysicalAddress = form.watch("physicalAddress");
   const watchCompanyName = form.watch("companyName");
 
+  const getCountryIdentityRecognitionMethod = () => {
+    switch (country) {
+      case "Pakistan":
+        return "Computerized National Identity Card (CNIC)";
+      case "India":
+        return "Aadhaar Card Number";
+      case "United States":
+        return "Company Registration Number / Driving license";
+      case "United Kingdom":
+        return "National Insurance Number (NIN)";
+      case "Canada":
+        return "Social Insurance Number (SIN)";
+      case "Australia":
+        return "Tax File Number (TFN)";
+      case "Germany":
+        return "Personalausweis (Identity Card)";
+      case "France":
+        return "Numéro de Sécurité Sociale (Social Security Number)";
+      case "Brazil":
+        return "CPF Number (Cadastro de Pessoas Físicas)";
+      case "South Africa":
+        return "ID Number";
+      case "Japan":
+        return "My Number";
+      case "China":
+        return "Resident Identity Card";
+      case "Russia":
+        return "Passport or SNILS";
+      case "Mexico":
+        return "CURP (Clave Única de Registro de Población)";
+      case "Argentina":
+        return "DNI (Documento Nacional de Identidad)";
+      case "Italy":
+        return "Codice Fiscale";
+      case "Spain":
+        return "DNI (Documento Nacional de Identidad)";
+      case "Saudi Arabia":
+        return "Iqama";
+      case "United Arab Emirates":
+        return "Emirates ID";
+      case "Turkey":
+        return "Turkish National Identity Number";
+      case "Egypt":
+        return "National ID";
+      default:
+        return "Identity Card Number";
+    }
+  };
+
   useEffect(() => {
     if (watchPhysicalAddress !== "" && watchCompanyName !== "") {
       setIsNextButton(true);
@@ -91,6 +146,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    console.log("COUNTRY", values.country, country);
     const f = new FormData();
 
     f.append("additionalInfo", values.additionalInfo || "");
@@ -105,12 +161,13 @@ export default function SignupPage() {
     f.append("title", values.title || "");
     f.append("state", values.state || "");
     f.append("zipCode", values.zipCode || "");
-    f.append("country", values.country || "");
+    f.append("country", country || values.country);
     f.append("contactPhone", values.contactPhone || "");
     f.append("ipAddress", values.ipAddress || "");
     f.append("physicalAddress", values.physicalAddress || "");
     f.append("portsNumber", values.portsNumber || "");
     f.append("website", values.website || "");
+    f.append("nationalId", values.nationalId || "");
 
     if (file) {
       f.append("file", file);
@@ -487,33 +544,6 @@ export default function SignupPage() {
                         </motion.div>{" "}
                       </div>
 
-                      <motion.div variants={itemVariants} className="space-y-2">
-                        <FormField
-                          control={form.control}
-                          name="contactAddress"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel className="text-purple-800">
-                                Address
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
-                                  required
-                                  {...field}
-                                />
-                              </FormControl>
-                              {form.formState.errors.contactAddress && (
-                                <FormDescription>
-                                  {form.formState.errors.contactAddress.message}
-                                </FormDescription>
-                              )}
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </motion.div>
-
                       <div className="grid w-full gap-2 grid-cols-3">
                         <motion.div
                           variants={itemVariants}
@@ -587,11 +617,51 @@ export default function SignupPage() {
                                   Country
                                 </FormLabel>
                                 <FormControl>
-                                  <Input
-                                    className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
-                                    required
+                                  <Select
                                     {...field}
-                                  />
+                                    value={country}
+                                    onValueChange={setCountry}
+                                    required
+                                  >
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Select a country" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectGroup>
+                                        <SelectLabel>Countries</SelectLabel>
+                                        {countries
+                                          .sort((a, b) =>
+                                            a.name.localeCompare(b.name)
+                                          )
+                                          .map((country) => (
+                                            <SelectItem
+                                              key={country.name}
+                                              value={country.name}
+                                            >
+                                              <div className="flex items-center gap-3">
+                                                {country.emoji ? (
+                                                  <div className="w-fit h-full font-bold px-2 pb-1 rounded bg-gray-100">
+                                                    {country.emoji}
+                                                  </div>
+                                                ) : (
+                                                  <div className="w-fit h-full font-extrabold text-[10px] px-2 pb-1 rounded bg-gray-100">
+                                                    {country.name
+                                                      .split(" ")
+                                                      .map((e) =>
+                                                        e[0] ===
+                                                        e[0].toUpperCase()
+                                                          ? e[0]
+                                                          : null
+                                                      )}
+                                                  </div>
+                                                )}
+                                                <div>{country.name}</div>
+                                              </div>
+                                            </SelectItem>
+                                          ))}
+                                      </SelectGroup>
+                                    </SelectContent>
+                                  </Select>
                                 </FormControl>
                                 {form.formState.errors.country && (
                                   <FormDescription>
@@ -604,6 +674,62 @@ export default function SignupPage() {
                           />
                         </motion.div>
                       </div>
+
+                      <motion.div
+                        variants={itemVariants}
+                        className="grid grid-cols-2 items-center gap-2"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="contactAddress"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-purple-800">
+                                Address
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
+                                  required
+                                  {...field}
+                                />
+                              </FormControl>
+                              {form.formState.errors.contactAddress && (
+                                <FormDescription>
+                                  {form.formState.errors.contactAddress.message}
+                                </FormDescription>
+                              )}
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {country ? (
+                          <FormField
+                            control={form.control}
+                            name="nationalId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-purple-800">
+                                  {getCountryIdentityRecognitionMethod()}
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
+                                    required
+                                    {...field}
+                                  />
+                                </FormControl>
+                                {form.formState.errors.nationalId && (
+                                  <FormDescription>
+                                    {form.formState.errors.nationalId.message}
+                                  </FormDescription>
+                                )}
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        ) : null}
+                      </motion.div>
 
                       <motion.div className="flex space-x-4 pt-4">
                         <motion.div

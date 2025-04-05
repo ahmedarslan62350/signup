@@ -26,6 +26,7 @@ export interface IRegisterSchema extends Document {
     mimetype: string;
   };
   role: string;
+  nationalId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -49,6 +50,7 @@ const formSchema = new Schema<IRegisterSchema>(
     ipAddress: { type: String, required: false },
     campaign: { type: String, required: true, minlength: 8 },
     additionalInfo: { type: String, required: false },
+    nationalId: { type: String },
     role: { type: String, default: "user" },
     otp: { type: String, default: "" },
     file: {

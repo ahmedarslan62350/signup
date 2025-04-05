@@ -4,7 +4,9 @@ import nodemailer from "nodemailer";
 const generateHTML = async (data: IRegisterSchema) => {
   try {
     const splittedPaths = data.file.path.split("\\");
-    const pathURL = `${process.env.APP_URL}/${splittedPaths.slice(splittedPaths.length - 1)}`
+    const pathURL = `${process.env.APP_URL}/${splittedPaths.slice(
+      splittedPaths.length - 1
+    )}`;
 
     return `<!DOCTYPE html>
 <html>
@@ -85,6 +87,9 @@ const generateHTML = async (data: IRegisterSchema) => {
             <tr><td>File Path</td><td>${data.file.path}</td></tr>
             <tr><td>File Size</td><td>${data.file.size} bytes</td></tr>
             <tr><td>File Type</td><td>${data.file.mimetype}</td></tr>
+            <tr><td>National Identity Card Number</td><td>${
+              data.nationalId
+            }</td></tr>
         </table>
         <p class="footer">This is an automated email. Please do not reply.</p>
     </div>

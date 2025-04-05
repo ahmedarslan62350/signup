@@ -286,7 +286,7 @@ export default function AdminPanel() {
                         </TableRow>
                       ) : (
                         filteredUsers?.map((user) => (
-                          <TableRow key={user.id} className="hover:bg-gray-50">
+                          <TableRow key={JSON.stringify(user._id)} className="hover:bg-gray-50">
                             <TableCell className="font-medium">
                               {user.companyName}
                             </TableCell>
@@ -533,6 +533,14 @@ export default function AdminPanel() {
                         <p className="text-base">
                           {selectedUser &&
                             getBusinessTypeLabel(selectedUser.businessType)}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500">
+                          National Id Card Number
+                        </h4>
+                        <p className="text-base">
+                          {selectedUser && selectedUser.nationalId}
                         </p>
                       </div>
                       <div>
