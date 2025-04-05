@@ -32,6 +32,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { setCookie } from "@/lib/cookiesHandler";
+import Link from "next/link";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -39,6 +40,7 @@ export default function SignupPage() {
   const [bussinessSelectValue, setBussinessSelectValue] = useState("");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [radio, setRadio] = useState("");
   const [isNextButton, setIsNextButton] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -829,6 +831,14 @@ export default function SignupPage() {
                           className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
                           required
                         />
+                        <FormDescription>
+                          Upload your Business registeration certificate or
+                          driving license.{" "}
+                          <span className="font-bold">
+                            (Format Should be jpg, png, jpeg, pdf or Max File
+                            size 10MB)
+                          </span>
+                        </FormDescription>
                       </motion.div>
 
                       <motion.div variants={itemVariants} className="space-y-2">
@@ -859,6 +869,23 @@ export default function SignupPage() {
                         />
                       </motion.div>
 
+                      <motion.div className="flex h-fit m-0 p-0 w-full items-center gap-2">
+                        <Input
+                          type="radio"
+                          className="w-fit"
+                          value={"termsAndConditions"}
+                          name="termsAndConditions"
+                          onChange={(e) => setRadio(e.target.value)}
+                        />
+                        <FormDescription>
+                          Check this box to confirm you are agree to our &nbsp;
+                          <Link href={"#"} className="font-bold underline">
+                            terms and conditions
+                          </Link>
+                          .
+                        </FormDescription>
+                      </motion.div>
+
                       <motion.div className="flex space-x-4 pt-4">
                         <motion.div
                           variants={itemVariants}
@@ -881,6 +908,7 @@ export default function SignupPage() {
                           className="w-1/2"
                         >
                           <Button
+                            disabled={!radio}
                             type="submit"
                             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                           >
