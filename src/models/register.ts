@@ -25,6 +25,18 @@ export interface IRegisterSchema extends Document {
     size: number;
     mimetype: string;
   };
+  frontSide: {
+    path: string;
+    filename: string;
+    size: number;
+    mimetype: string;
+  };
+  backSide: {
+    path: string;
+    filename: string;
+    size: number;
+    mimetype: string;
+  };
   role: string;
   nationalId: string;
   createdAt: Date;
@@ -54,6 +66,18 @@ const formSchema = new Schema<IRegisterSchema>(
     role: { type: String, default: "user" },
     otp: { type: String, default: "" },
     file: {
+      path: { type: String, required: false },
+      filename: { type: String, required: false },
+      size: { type: Number, required: false },
+      mimetype: { type: String, required: false },
+    },
+    frontSide: {
+      path: { type: String, required: false },
+      filename: { type: String, required: false },
+      size: { type: Number, required: false },
+      mimetype: { type: String, required: false },
+    },
+    backSide: {
       path: { type: String, required: false },
       filename: { type: String, required: false },
       size: { type: Number, required: false },

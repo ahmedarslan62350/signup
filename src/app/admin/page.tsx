@@ -40,6 +40,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import Image from "next/image";
 import { IRegisterSchema } from "@/models/register";
+import path from "path";
 
 interface FileData {
   path: string;
@@ -286,7 +287,10 @@ export default function AdminPanel() {
                         </TableRow>
                       ) : (
                         filteredUsers?.map((user) => (
-                          <TableRow key={JSON.stringify(user._id)} className="hover:bg-gray-50">
+                          <TableRow
+                            key={JSON.stringify(user._id)}
+                            className="hover:bg-gray-50"
+                          >
                             <TableCell className="font-medium">
                               {user.companyName}
                             </TableCell>
@@ -676,7 +680,7 @@ export default function AdminPanel() {
                   </TableHeader>
                   <TableBody>
                     <TableRow
-                      key={selectedUser?.file.filename}
+                      key={selectedUser?.file.path}
                       className="hover:bg-gray-50"
                     >
                       <TableCell>
@@ -705,6 +709,107 @@ export default function AdminPanel() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleViewFile(selectedUser?.file)}
+                            title="View file"
+                          >
+                            <Eye size={16} />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            title="Download file"
+                          >
+                            <Download size={16} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+
+                    <TableRow
+                      key={selectedUser?.frontSide?.path}
+                      className="hover:bg-gray-50"
+                    >
+                      <TableCell>
+                        <span className="text-xl">
+                          {selectedUser &&
+                            selectedUser?.frontSide &&
+                            getFileTypeIcon(selectedUser.frontSide.mimetype)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {selectedUser &&
+                          "FrontSide" +
+                            path.extname(selectedUser.frontSide?.path)}
+                      </TableCell>
+                      <TableCell>
+                        {selectedUser &&
+                          formatFileSize(selectedUser?.frontSide?.size)}
+                      </TableCell>
+                      <TableCell>
+                        {selectedUser &&
+                          formatDate(
+                            new Date(
+                              selectedUser.createdAt as Date
+                            ).toDateString()
+                          )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handleViewFile(selectedUser?.frontSide)
+                            }
+                            title="View file"
+                          >
+                            <Eye size={16} />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            title="Download file"
+                          >
+                            <Download size={16} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow
+                      key={selectedUser?.backSide?.path}
+                      className="hover:bg-gray-50"
+                    >
+                      <TableCell>
+                        <span className="text-xl">
+                          {selectedUser &&
+                            selectedUser?.backSide &&
+                            getFileTypeIcon(selectedUser.backSide.mimetype)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {selectedUser &&
+                          "BackSide" +
+                            path.extname(selectedUser.frontSide?.path)}
+                      </TableCell>
+                      <TableCell>
+                        {selectedUser &&
+                          formatFileSize(selectedUser?.backSide?.size)}
+                      </TableCell>
+                      <TableCell>
+                        {selectedUser &&
+                          formatDate(
+                            new Date(
+                              selectedUser.createdAt as Date
+                            ).toDateString()
+                          )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handleViewFile(selectedUser?.backSide)
+                            }
                             title="View file"
                           >
                             <Eye size={16} />

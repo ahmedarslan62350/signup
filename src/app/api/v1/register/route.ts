@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Extract fields from formData
     const extractedData = {
       additionalInfo: formData.get("additionalInfo") as string,
       agentsNumber: formData.get("agentsNumber") as string,
@@ -43,7 +42,6 @@ export async function POST(req: NextRequest) {
       nationalId: formData.get("nationalId"),
     };
 
-    // Validate extracted data using Zod schema
     const validation = formSchema.safeParse(extractedData);
     if (!validation.success) {
       return NextResponse.json({
@@ -55,7 +53,6 @@ export async function POST(req: NextRequest) {
 
     const data = validation.data;
 
-    // Check if user already exists
     const existingUser = await registerModel.findOne({
       contactEmail: data.contactEmail,
     });
@@ -68,20 +65,36 @@ export async function POST(req: NextRequest) {
     }
 
     let fileInfo = null;
-    const file = formData.get("file") as File | null;
+    let frontInfo = null;
+    let backInfo = null;
 
-    if (file) {
+    const file = formData.get("file") as File | null;
+    const front = formData.get("frontSide") as File | null;
+    const back = formData.get("backSide") as File | null;
+
+    if (file && front && back) {
       const uploadDir = path.join(process.cwd(), "uploads");
-      const uploadDir1 = path.join(process.cwd(), "public");
-      const fileExtension = path.extname(file.name); // Extracts the file extension
+
+      const fileExtension = path.extname(file.name);
       const fileNameWithoutExt = path.basename(file.name, fileExtension);
       const uniqueFileName = `${fileNameWithoutExt}_${uuidv4()}${fileExtension}`;
+
+      const frontExtension = path.extname(front.name);
+      const frontNameWithoutExt = path.basename(front.name, frontExtension);
+      const uniqueFrontName = `Front_${frontNameWithoutExt}_${uuidv4()}${frontExtension}`;
+
+      const backExtension = path.extname(back.name);
+      const backNameWithoutExt = path.basename(back.name, backExtension);
+      const uniqueBackName = `Back_${backNameWithoutExt}_${uuidv4()}${backExtension}`;
+
       const filePath = path.join(uploadDir, uniqueFileName);
-      const filePath1 = path.join(uploadDir1, uniqueFileName);
+      const frontPath = path.join(uploadDir, uniqueFrontName);
+      const backPath = path.join(uploadDir, uniqueBackName);
 
       await Promise.all([
         writeFile(filePath, Buffer.from(await file.arrayBuffer())),
-        writeFile(filePath1, Buffer.from(await file.arrayBuffer())),
+        writeFile(frontPath, Buffer.from(await front.arrayBuffer())),
+        writeFile(backPath, Buffer.from(await back.arrayBuffer())),
       ]);
 
       fileInfo = {
@@ -90,16 +103,32 @@ export async function POST(req: NextRequest) {
         size: file.size,
         path: filePath,
       };
+
+      frontInfo = {
+        filename: front.name,
+        mimetype: front.type,
+        size: front.size,
+        path: frontPath,
+      };
+
+      backInfo = {
+        filename: back.name,
+        mimetype: back.type,
+        size: back.size,
+        path: backPath,
+      };
     }
 
-    // Save user to database
     const user = new registerModel({
       ...data,
       file: fileInfo,
+      frontSide: frontInfo,
+      backSide: backInfo,
     }) as IRegisterSchema;
 
     user.otp = Math.floor(100000 + Math.random() * 900000).toString();
-
+    
+    console.log(user)
     await user.save();
     await verifyEmail({
       to: user.contactEmail,
