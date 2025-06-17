@@ -102,9 +102,11 @@ export default function SignupPage() {
   const watchCountry = form.watch("country");
 
   useEffect(() => {
-    getUserIPDetails().then((country) => {
-      form.setValue("country", country);
-    });
+    getUserIPDetails()
+      .then((country) => {
+        form.setValue("country", country);
+      })
+      .catch((err) => console.log(err));
   });
 
   useEffect(() => {
