@@ -72,11 +72,8 @@ export async function POST(req: NextRequest) {
       frontSideUrl: data.frontSideUrl,
     }) as IRegisterSchema;
 
-    console.log(user);
-
     user.otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    console.log(user);
     await user.save();
     await verifyEmail({
       to: user.contactEmail,

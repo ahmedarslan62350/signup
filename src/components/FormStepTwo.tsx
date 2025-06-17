@@ -26,7 +26,12 @@ import { FormStepArgs } from "@/types";
 import { useCountries } from "use-react-countries";
 import { getCountryIdentityRecognitionMethod } from "@/lib/utils";
 
-const FormStepTwo = ({ form, setFormStep, watchCountry }: FormStepArgs) => {
+const FormStepTwo = ({
+  form,
+  setFormStep,
+  watchCountry,
+  isNextButton,
+}: FormStepArgs) => {
   const { countries } = useCountries();
 
   const containerVariants = {
@@ -391,6 +396,7 @@ const FormStepTwo = ({ form, setFormStep, watchCountry }: FormStepArgs) => {
           >
             <Button
               type="button"
+              disabled={!isNextButton}
               onClick={() => setFormStep(2)}
               className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >

@@ -99,7 +99,18 @@ export default function SignupPage() {
 
   const watchPhysicalAddress = form.watch("physicalAddress");
   const watchCompanyName = form.watch("companyName");
+  const website = form.watch("website");
+  const bussinessCountry = form.watch("bussinessCountry");
   const watchCountry = form.watch("country");
+  const firstName = form.watch("firstName");
+  const lastName = form.watch("lastName");
+  const title = form.watch("title");
+  const contactEmail = form.watch("contactEmail");
+  const contactPhone = form.watch("contactPhone");
+  const state = form.watch("state");
+  const zipCode = form.watch("zipCode");
+  const contactAddress = form.watch("contactAddress");
+  const nationalId = form.watch("nationalId");
 
   useEffect(() => {
     getUserIPDetails()
@@ -110,12 +121,49 @@ export default function SignupPage() {
   });
 
   useEffect(() => {
-    if (watchPhysicalAddress !== "" && watchCompanyName !== "") {
-      setIsNextButton(true);
-    } else {
-      setIsNextButton(false);
-    }
-  }, [form, watchCompanyName, watchPhysicalAddress]);
+    setIsNextButton(false);
+    const isStepValid = () => {
+      if (formStep === 0) {
+        return [
+          watchPhysicalAddress,
+          watchCompanyName,
+          website,
+          bussinessCountry,
+        ].every((field) => field.trim() !== "");
+      } else if (formStep === 1) {
+        return [
+          firstName,
+          lastName,
+          title,
+          contactEmail,
+          contactPhone,
+          contactAddress,
+          state,
+          zipCode,
+          nationalId,
+        ].every((field) => field.trim() !== "");
+      }
+      return false;
+    };
+
+    setIsNextButton(isStepValid());
+  }, [
+    form,
+    formStep,
+    bussinessCountry,
+    watchCompanyName,
+    watchPhysicalAddress,
+    website,
+    contactAddress,
+    contactEmail,
+    firstName,
+    lastName,
+    state,
+    nationalId,
+    zipCode,
+    contactPhone,
+    title,
+  ]);
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
@@ -206,7 +254,6 @@ export default function SignupPage() {
                             ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
                             : "border-2 border-gray-300 bg-white text-gray-500"
                         }`}
-                        onClick={() => setFormStep(step)}
                       >
                         {step + 1}
                       </motion.div>

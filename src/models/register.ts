@@ -68,6 +68,7 @@ const formSchema = new Schema<IRegisterSchema>(
     campaign: { type: String, required: true, minlength: 8 },
     additionalInfo: { type: String, required: false },
     nationalId: { type: String },
+    country: { type: String },
     bussinessCountry: {
       type: String,
     },
