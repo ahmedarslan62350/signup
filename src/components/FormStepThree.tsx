@@ -92,8 +92,6 @@ const FormStepThree = ({
                       <SelectItem value="contact_center">
                         Contact Center
                       </SelectItem>
-                      <SelectItem value="reseller">Reseller</SelectItem>
-                      <SelectItem value="wholesale">Wholesale</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
