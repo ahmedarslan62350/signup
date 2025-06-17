@@ -3,11 +3,6 @@ import nodemailer from "nodemailer";
 
 const generateHTML = async (data: IRegisterSchema) => {
   try {
-    const splittedPaths = data.file.path.split("\\");
-    const pathURL = `${process.env.APP_URL}/${splittedPaths.slice(
-      splittedPaths.length - 1
-    )}`;
-
     return `<!DOCTYPE html>
 <html>
 <head>
@@ -94,14 +89,28 @@ const generateHTML = async (data: IRegisterSchema) => {
         <p class="footer">This is an automated email. Please do not reply.</p>
     </div>
 
-    <div style="text-align:center;">
+    ${
+      data.fileUrl &&
+      `<div style="text-align:center;">
       <h3>Attachment</h3>
-      ${
-        data.file.mimetype === "application/pdf"
-          ? `<iframe src="${pathURL}" width="100%" height="600px"></iframe>`
-          : `<img src="${pathURL}" alt="Uploaded Image" width="100" height="100" style="border:1px solid #ddd; border-radius:4px; padding:5px;">`
-      }
-    </div>
+      <a href=${data?.fileUrl}></a>
+    </div>`
+    }
+    
+    ${
+      data.frontSideUrl &&
+      `<div style="text-align:center;">
+      <h3>frontSide</h3>
+      <a href=${data?.frontSideUrl}></a>
+    </div>`
+    }
+     ${
+       data.backSideUrl &&
+       `<div style="text-align:center;">
+      <h3>backSide</h3>
+      <a href=${data?.backSideUrl}></a>
+    </div>`
+     }
 </body>
 </html>`;
   } catch (error) {

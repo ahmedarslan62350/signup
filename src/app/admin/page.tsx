@@ -484,6 +484,12 @@ export default function AdminPanel() {
                           {selectedUser?.contactPhone}
                         </p>
                       </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-gray-500">
+                          Country of Residence
+                        </h4>
+                        <p className="text-base">{selectedUser?.country}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -499,13 +505,13 @@ export default function AdminPanel() {
                       <h4 className="text-sm font-medium text-gray-500">
                         Number of Agents
                       </h4>
-                      <p className="text-base">250</p>
+                      <p className="text-base">{selectedUser.agentsNumber}</p>
                     </div>
                     <div>
                       <h4 className="text-sm font-medium text-gray-500">
                         Campaign
                       </h4>
-                      <p className="text-base">Customer Support</p>
+                      <p className="text-base">{selectedUser.campaign}</p>
                     </div>
                   </div>
                 </div>

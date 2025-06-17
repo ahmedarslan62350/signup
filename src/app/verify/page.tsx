@@ -44,7 +44,7 @@ const Verify = () => {
       }
 
       toast.success(data.message);
-      router.replace("/");
+      router.replace("/success");
     } catch (error) {
       console.error(error);
       toast.error("Something went wromg");

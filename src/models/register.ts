@@ -15,6 +15,7 @@ export interface IRegisterSchema extends Document {
   businessType: string;
   agentsNumber?: string;
   portsNumber?: string;
+  country: string;
   ipAddress?: string;
   otp: string;
   campaign: string;
