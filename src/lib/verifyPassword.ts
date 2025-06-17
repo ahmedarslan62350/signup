@@ -10,7 +10,6 @@ export async function verify(email: string, password: string) {
   const { data } = loginSchema.safeParse({ email, password });
 
   if (data?.email == ADMIN_EMAIL && data?.password == ADMIN_PASSWORD) {
-    console.log("RUN")
     const cookie = await cookies();
     cookie.set("token", process.env.TOKEN || "");
     return true;

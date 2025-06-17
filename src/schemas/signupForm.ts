@@ -23,4 +23,8 @@ export const formSchema = z.object({
   frontSide: z.instanceof(File).optional(),
   backSide: z.instanceof(File).optional(),
   nationalId: z.string().min(8, "Too short"),
+  bussinessCountry: z.string(),
+  frontSideUrl: z.string().optional(),
+  backSideUrl: z.string().optional(),
+  fileUrl: z.string().optional(),
 });

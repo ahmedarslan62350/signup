@@ -16,5 +16,5 @@ export interface FormStepArgs {
   handleBackSideChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleFrontSideChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  getCountryIdentityRecognitionMethod: () => string;
+  getCountryIdentityRecognitionMethod?: () => string;
 }

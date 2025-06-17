@@ -3,9 +3,6 @@ import connectMongo from "@/lib/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
 import { formSchema } from "@/schemas/signupForm";
 import { ApiError } from "next/dist/server/api-utils";
-import path from "path";
-import { writeFile } from "fs/promises";
-import { v4 as uuidv4 } from "uuid";
 import { verifyEmail } from "@/config/emailService";
 
 export async function POST(req: NextRequest) {
@@ -40,6 +37,10 @@ export async function POST(req: NextRequest) {
       portsNumber: formData.get("portsNumber") as string,
       website: formData.get("website") as string,
       nationalId: formData.get("nationalId"),
+      bussinessCountry: formData.get("bussinessCountry"),
+      fileUrl: formData.get("fileUrl") || "",
+      frontSideUrl: formData.get("frontSideUrl") || "",
+      backSideUrl: formData.get("backSideUrl") || "",
     };
 
     const validation = formSchema.safeParse(extractedData);
@@ -64,71 +65,18 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    let fileInfo = null;
-    let frontInfo = null;
-    let backInfo = null;
-
-    const file = formData.get("file") as File | null;
-    const front = formData.get("frontSide") as File | null;
-    const back = formData.get("backSide") as File | null;
-
-    if (file && front && back) {
-      const uploadDir = path.join(process.cwd(), "uploads");
-
-      const fileExtension = path.extname(file.name);
-      const fileNameWithoutExt = path.basename(file.name, fileExtension);
-      const uniqueFileName = `${fileNameWithoutExt}_${uuidv4()}${fileExtension}`;
-
-      const frontExtension = path.extname(front.name);
-      const frontNameWithoutExt = path.basename(front.name, frontExtension);
-      const uniqueFrontName = `Front_${frontNameWithoutExt}_${uuidv4()}${frontExtension}`;
-
-      const backExtension = path.extname(back.name);
-      const backNameWithoutExt = path.basename(back.name, backExtension);
-      const uniqueBackName = `Back_${backNameWithoutExt}_${uuidv4()}${backExtension}`;
-
-      const filePath = path.join(uploadDir, uniqueFileName);
-      const frontPath = path.join(uploadDir, uniqueFrontName);
-      const backPath = path.join(uploadDir, uniqueBackName);
-
-      await Promise.all([
-        writeFile(filePath, Buffer.from(await file.arrayBuffer())),
-        writeFile(frontPath, Buffer.from(await front.arrayBuffer())),
-        writeFile(backPath, Buffer.from(await back.arrayBuffer())),
-      ]);
-
-      fileInfo = {
-        filename: file.name,
-        mimetype: file.type,
-        size: file.size,
-        path: filePath,
-      };
-
-      frontInfo = {
-        filename: front.name,
-        mimetype: front.type,
-        size: front.size,
-        path: frontPath,
-      };
-
-      backInfo = {
-        filename: back.name,
-        mimetype: back.type,
-        size: back.size,
-        path: backPath,
-      };
-    }
-
     const user = new registerModel({
       ...data,
-      file: fileInfo,
-      frontSide: frontInfo,
-      backSide: backInfo,
+      fileUrl: data.fileUrl,
+      backSideUrl: data.backSideUrl,
+      frontSideUrl: data.frontSideUrl,
     }) as IRegisterSchema;
 
+    console.log(user);
+
     user.otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    console.log(user)
+
+    console.log(user);
     await user.save();
     await verifyEmail({
       to: user.contactEmail,

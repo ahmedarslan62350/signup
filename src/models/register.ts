@@ -18,6 +18,9 @@ export interface IRegisterSchema extends Document {
   ipAddress?: string;
   otp: string;
   campaign: string;
+  frontSideUrl?: string;
+  backSideUrl?: string;
+  fileUrl?: string;
   additionalInfo?: string;
   file: {
     path: string;
@@ -39,6 +42,7 @@ export interface IRegisterSchema extends Document {
   };
   role: string;
   nationalId: string;
+  bussinessCountry: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,6 +67,24 @@ const formSchema = new Schema<IRegisterSchema>(
     campaign: { type: String, required: true, minlength: 8 },
     additionalInfo: { type: String, required: false },
     nationalId: { type: String },
+    bussinessCountry: {
+      type: String,
+    },
+    frontSideUrl: {
+      type: String,
+      default:
+        "https://www.shutterstock.com/image-vector/default-ui-image-placeholder-wireframes-600nw-1037719192.jpg",
+    },
+    backSideUrl: {
+      type: String,
+      default:
+        "https://www.shutterstock.com/image-vector/default-ui-image-placeholder-wireframes-600nw-1037719192.jpg",
+    },
+    fileUrl: {
+      type: String,
+      default:
+        "https://www.shutterstock.com/image-vector/default-ui-image-placeholder-wireframes-600nw-1037719192.jpg",
+    },
     role: { type: String, default: "user" },
     otp: { type: String, default: "" },
     file: {

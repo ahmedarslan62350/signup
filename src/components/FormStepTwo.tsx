@@ -24,13 +24,9 @@ import { Button } from "./ui/button";
 
 import { FormStepArgs } from "@/types";
 import { useCountries } from "use-react-countries";
+import { getCountryIdentityRecognitionMethod } from "@/lib/utils";
 
-const FormStepTwo = ({
-  form,
-  getCountryIdentityRecognitionMethod,
-  setFormStep,
-  watchCountry,
-}: FormStepArgs) => {
+const FormStepTwo = ({ form, setFormStep, watchCountry }: FormStepArgs) => {
   const { countries } = useCountries();
 
   const containerVariants = {
@@ -207,7 +203,9 @@ const FormStepTwo = ({
               name="state"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-purple-800">State</FormLabel>
+                  <FormLabel className="text-purple-800">
+                    State/Province
+                  </FormLabel>
                   <FormControl>
                     <Input
                       className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
@@ -256,7 +254,9 @@ const FormStepTwo = ({
               name="country"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-purple-800">Country</FormLabel>
+                  <FormLabel className="text-purple-800">
+                    Country of Residence
+                  </FormLabel>
                   <FormControl>
                     <Select
                       {...field}
@@ -346,7 +346,9 @@ const FormStepTwo = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-purple-800">
-                    {getCountryIdentityRecognitionMethod()}
+                    {getCountryIdentityRecognitionMethod(
+                      form.getValues().country
+                    )}
                   </FormLabel>
                   <FormControl>
                     <Input

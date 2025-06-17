@@ -16,6 +16,24 @@ import { setCookie } from "@/lib/cookiesHandler";
 import FormStepOne from "@/components/FormStepOne";
 import FormStepTwo from "@/components/FormStepTwo";
 import FormStepThree from "@/components/FormStepThree";
+import { upload } from "@imagekit/next";
+import { getUserIPDetails } from "@/lib/utils";
+
+const uploadToImageKit = async (file: File) => {
+  const res = await fetch("/api/upload-auth");
+  const { signature, token, expire, publicKey } = await res.json();
+
+  const response = await upload({
+    file,
+    fileName: file.name,
+    signature,
+    expire,
+    token,
+    publicKey,
+  });
+
+  return response.url; // or .thumbnailUrl or .fileId
+};
 
 export default function SignupPage() {
   const router = useRouter();
@@ -30,27 +48,19 @@ export default function SignupPage() {
   const [isNextButton, setIsNextButton] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-    }
+  const handleFrontSideChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setFrontSide(file);
   };
 
-  const handleFrontSideChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setFrontSide(selectedFile);
-    }
+  const handleBackSideChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setBackSide(file);
   };
 
-  const handleBackSideChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
-    if (selectedFile) {
-      setBackSide(selectedFile);
-    }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setFile(file);
   };
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -71,6 +81,7 @@ export default function SignupPage() {
       contactEmail: "",
       firstName: "",
       lastName: "",
+      bussinessCountry: "",
 
       contactPhone: "",
       ipAddress: "",
@@ -80,6 +91,9 @@ export default function SignupPage() {
       file: undefined,
       backSide: undefined,
       frontSide: undefined,
+      fileUrl: "",
+      backSideUrl: "",
+      frontSideUrl: "",
     },
   });
 
@@ -87,54 +101,11 @@ export default function SignupPage() {
   const watchCompanyName = form.watch("companyName");
   const watchCountry = form.watch("country");
 
-  const getCountryIdentityRecognitionMethod = () => {
-    switch (watchCountry) {
-      case "Pakistan":
-        return "Computerized National Identity Card (CNIC)";
-      case "India":
-        return "Aadhaar Card Number";
-      case "United States":
-        return "Company Registration Number / Driving license";
-      case "United Kingdom":
-        return "National Insurance Number (NIN)";
-      case "Canada":
-        return "Social Insurance Number (SIN)";
-      case "Australia":
-        return "Tax File Number (TFN)";
-      case "Germany":
-        return "Personalausweis (Identity Card)";
-      case "France":
-        return "Numéro de Sécurité Sociale (Social Security Number)";
-      case "Brazil":
-        return "CPF Number (Cadastro de Pessoas Físicas)";
-      case "South Africa":
-        return "ID Number";
-      case "Japan":
-        return "My Number";
-      case "China":
-        return "Resident Identity Card";
-      case "Russia":
-        return "Passport or SNILS";
-      case "Mexico":
-        return "CURP (Clave Única de Registro de Población)";
-      case "Argentina":
-        return "DNI (Documento Nacional de Identidad)";
-      case "Italy":
-        return "Codice Fiscale";
-      case "Spain":
-        return "DNI (Documento Nacional de Identidad)";
-      case "Saudi Arabia":
-        return "Iqama";
-      case "United Arab Emirates":
-        return "Emirates ID";
-      case "Turkey":
-        return "Turkish National Identity Number";
-      case "Egypt":
-        return "National ID";
-      default:
-        return "Identity Card Number";
-    }
-  };
+  useEffect(() => {
+    getUserIPDetails().then((country) => {
+      form.setValue("country", country);
+    });
+  });
 
   useEffect(() => {
     if (watchPhysicalAddress !== "" && watchCompanyName !== "") {
@@ -167,22 +138,19 @@ export default function SignupPage() {
     f.append("portsNumber", values.portsNumber || "");
     f.append("website", values.website || "");
     f.append("nationalId", values.nationalId || "");
+    f.append("bussinessCountry", values.bussinessCountry || "");
 
-    if (file) {
-      f.append("file", file);
-    }
+    const uploadedFiles = await Promise.all([
+      frontSide ? uploadToImageKit(frontSide) : null,
+      backSide ? uploadToImageKit(backSide) : null,
+      file ? uploadToImageKit(file) : null,
+    ]);
 
-    if (frontSide) {
-      f.append("frontSide", frontSide);
-    }
+    const [frontSideUrl, backSideUrl, fileUrl] = uploadedFiles;
 
-    if (backSide) {
-      f.append("backSide", backSide);
-    }
-
-    for (const pair of f.entries()) {
-      console.log(pair[0], pair[1]);
-    }
+    if (frontSide) f.append("frontSideUrl", frontSideUrl as string);
+    if (backSideUrl) f.append("backSideUrl", backSideUrl);
+    if (fileUrl) f.append("fileUrl", fileUrl);
 
     try {
       const { data } = await axios.post("/api/v1/register", f);
@@ -256,9 +224,6 @@ export default function SignupPage() {
                     <FormStepOne
                       bussinessSelectValue={bussinessSelectValue}
                       form={form}
-                      getCountryIdentityRecognitionMethod={
-                        getCountryIdentityRecognitionMethod
-                      }
                       handleBackSideChange={handleBackSideChange}
                       handleFileChange={handleFileChange}
                       handleFrontSideChange={handleFrontSideChange}
@@ -277,9 +242,6 @@ export default function SignupPage() {
                     <FormStepTwo
                       bussinessSelectValue={bussinessSelectValue}
                       form={form}
-                      getCountryIdentityRecognitionMethod={
-                        getCountryIdentityRecognitionMethod
-                      }
                       handleBackSideChange={handleBackSideChange}
                       handleFileChange={handleFileChange}
                       handleFrontSideChange={handleFrontSideChange}
@@ -298,9 +260,6 @@ export default function SignupPage() {
                     <FormStepThree
                       bussinessSelectValue={bussinessSelectValue}
                       form={form}
-                      getCountryIdentityRecognitionMethod={
-                        getCountryIdentityRecognitionMethod
-                      }
                       handleBackSideChange={handleBackSideChange}
                       handleFileChange={handleFileChange}
                       handleFrontSideChange={handleFrontSideChange}

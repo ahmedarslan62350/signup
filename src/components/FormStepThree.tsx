@@ -31,7 +31,6 @@ const FormStepThree = ({
   setBussinessSelectValue,
   handleBackSideChange,
   handleFrontSideChange,
-  getCountryIdentityRecognitionMethod,
   handleFileChange,
   isLoading,
   setRadio,
@@ -107,58 +106,62 @@ const FormStepThree = ({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="frontSide"
-            render={() => (
-              <FormItem>
-                <FormLabel className="text-purple-800 leading-tight">
-                  Front side ({getCountryIdentityRecognitionMethod()})
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept=".jpg,.jpeg,.png"
-                    onChange={handleFrontSideChange}
-                    className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
-                    required
-                  />
-                </FormControl>
-                {form.formState.errors.frontSide && (
-                  <FormDescription>
-                    {form.formState.errors.frontSide.message}
-                  </FormDescription>
+          {form.getValues().country === "Pakistan" ? (
+            <>
+              <FormField
+                control={form.control}
+                name="frontSide"
+                render={() => (
+                  <FormItem>
+                    <FormLabel className="text-purple-800 leading-tight">
+                      Front side CNIC
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept=".jpg,.jpeg,.png"
+                        onChange={handleFrontSideChange}
+                        className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
+                        required
+                      />
+                    </FormControl>
+                    {form.formState.errors.frontSide && (
+                      <FormDescription>
+                        {form.formState.errors.frontSide.message}
+                      </FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
                 )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="backSide"
-            render={() => (
-              <FormItem>
-                <FormLabel className="text-purple-800 leading-tight">
-                  Back side ({getCountryIdentityRecognitionMethod()})
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="file"
-                    accept=".jpg,.jpeg,.png"
-                    onChange={handleBackSideChange}
-                    className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
-                    required
-                  />
-                </FormControl>
-                {form.formState.errors.backSide && (
-                  <FormDescription>
-                    {form.formState.errors.backSide.message}
-                  </FormDescription>
+              />
+              <FormField
+                control={form.control}
+                name="backSide"
+                render={() => (
+                  <FormItem>
+                    <FormLabel className="text-purple-800 leading-tight">
+                      Back side CNIC
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept=".jpg,.jpeg,.png"
+                        onChange={handleBackSideChange}
+                        className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
+                        required
+                      />
+                    </FormControl>
+                    {form.formState.errors.backSide && (
+                      <FormDescription>
+                        {form.formState.errors.backSide.message}
+                      </FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
                 )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+              />
+            </>
+          ) : null}
         </motion.div>
 
         {bussinessSelectValue === "contact_center" ? (
@@ -280,25 +283,27 @@ const FormStepThree = ({
           />
         </motion.div>
 
-        <motion.div variants={itemVariants} className="space-y-2">
-          <Label htmlFor="file" className="text-purple-800">
-            File
-          </Label>
-          <Input
-            id="file"
-            type="file"
-            accept=".jpg,.jpeg,.png,.pdf"
-            onChange={handleFileChange}
-            className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
-            required
-          />
-          <FormDescription>
-            Upload your Business registeration certificate or driving license.{" "}
-            <span className="font-bold">
-              (Format Should be jpg, png, jpeg, pdf or Max File size 10MB)
-            </span>
-          </FormDescription>
-        </motion.div>
+        {form.getValues().country !== "Pakistan" ? (
+          <motion.div variants={itemVariants} className="space-y-2">
+            <Label htmlFor="file" className="text-purple-800">
+              File
+            </Label>
+            <Input
+              id="file"
+              type="file"
+              accept=".jpg,.jpeg,.png,.pdf"
+              onChange={handleFileChange}
+              className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
+              required
+            />
+            <FormDescription>
+              Upload your Business registeration certificate or driving license.{" "}
+              <span className="font-bold">
+                (Format Should be jpg, png, jpeg, pdf or Max File size 10MB)
+              </span>
+            </FormDescription>
+          </motion.div>
+        ) : null}
 
         <motion.div variants={itemVariants} className="space-y-2">
           <FormField
@@ -338,7 +343,12 @@ const FormStepThree = ({
           />
           <FormDescription>
             Check this box to confirm you are agree to our &nbsp;
-            <Link href={"#"} className="font-bold underline">
+            <Link
+              href={"https://vopial.com/terms-of-service/"}
+              className="font-bold underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               terms and conditions
             </Link>
             .
@@ -369,6 +379,7 @@ const FormStepThree = ({
             <Button
               disabled={!radio}
               type="submit"
+              onClick={()=>console.log(form.formState.errors)}
               className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >
               {isLoading ? "Loading..." : "Complete Signup"}

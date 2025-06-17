@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { ApiError } from "next/dist/server/api-utils";
 import jwt from "jsonwebtoken";
 import RegisterModel, { IRegisterSchema } from "@/models/register";
-import fs from "fs";
-import path from "path";
 
 export async function GET(req: NextRequest) {
   await connectMongo();
@@ -17,16 +15,7 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const privateKey = fs.readFileSync(
-      path.join(process.cwd(), "private.key"),
-      "utf8"
-    );
-
-    const data = (await jwt.verify(token.value, privateKey, {
-      algorithms: ["ES256"],
-    })) as IRegisterSchema;
-
-    console.log("DATA",data)
+    const data = (await jwt.verify(token.value, process.env.JWT_SECRET as string)) as IRegisterSchema;
 
     if (!data || data.role !== "admin") {
       return NextResponse.json({

@@ -1,15 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import {
-  FileText,
-  Eye,
-  Download,
-  Search,
-  Users,
-  Edit,
-  Save,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { FileText, Eye, Search, Users, Edit, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,15 +30,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import axios from "axios";
 import { toast } from "sonner";
-import Image from "next/image";
 import { IRegisterSchema } from "@/models/register";
-import path from "path";
+import Link from "next/link";
 
 interface FileData {
   path: string;
   filename: string;
   size: number;
-  mimetype: string;
 }
 
 interface UserData extends IRegisterSchema {
@@ -62,10 +52,7 @@ export default function AdminPanel() {
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
   const [selectedFile, setSelectedFile] = useState<FileData | null>(null);
-  const [fileContent, setFileContent] = useState("");
   const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [editedContent, setEditedContent] = useState("");
-  const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
 
   // Loading states
   const [loadingUsers, setLoadingUsers] = useState(true);
@@ -96,25 +83,19 @@ export default function AdminPanel() {
     fetchUsers();
   }, []);
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + " B";
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(2) + " KB";
-    else return (bytes / 1048576).toFixed(2) + " MB";
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString();
   };
 
-  const getFileTypeIcon = (type: string) => {
-    if (type.startsWith("image/")) return "🖼️";
-    if (type.startsWith("text/")) return "📄";
-    if (type.startsWith("application/pdf")) return "📑";
-    if (type.includes("document")) return "📝";
-    if (type.includes("spreadsheet")) return "📊";
-    if (type.includes("json")) return "🔧";
-    return "📁";
-  };
+  // const getFileTypeIcon = (type: string) => {
+  //   if (type.startsWith("image/")) return "🖼️";
+  //   if (type.startsWith("text/")) return "📄";
+  //   if (type.startsWith("application/pdf")) return "📑";
+  //   if (type.includes("document")) return "📝";
+  //   if (type.includes("spreadsheet")) return "📊";
+  //   if (type.includes("json")) return "🔧";
+  //   return "📁";
+  // };
 
   const getBusinessTypeLabel = (type: string) => {
     switch (type) {
@@ -128,53 +109,6 @@ export default function AdminPanel() {
         return type;
     }
   };
-
-  const handleViewFile = useCallback(
-    async (
-      file:
-        | {
-            path: string; // Storage path/URL
-            filename: string; // Original filename
-            size: number; // File size in bytes
-            mimetype: string;
-          }
-        | undefined
-    ) => {
-      if (file) {
-        setSelectedFile(file);
-
-        try {
-          // In a real app, you would fetch the file content from your API
-          // const response = await axios.get(`/api/admin/files/${file.id}/content`);
-          // setFileContent(response.data.content);
-
-          const { data } = await axios.post("/api/v1/read-file", {
-            filePath: file.path,
-          });
-
-          if (!data) {
-            toast.error("Something went wrong");
-          }
-
-          const { fileBuffer }: { fileBuffer: string } = data;
-
-          setFileContent(fileBuffer);
-          setEditedContent(fileBuffer);
-        } catch (error) {
-          console.error("Error fetching file content:", error);
-          setFileContent("Error loading file content");
-        }
-      }
-    },
-    []
-  );
-
-  useEffect(() => {
-    if (fileContent) {
-      const dataUrl = `data:${selectedFile?.mimetype};base64,${fileContent}`;
-      setImageDataUrl(dataUrl);
-    }
-  }, [fileContent, handleViewFile, selectedFile]);
 
   const handleViewUser = (user: UserData) => {
     setSelectedUser(user);
@@ -191,7 +125,6 @@ export default function AdminPanel() {
       //   content: editedContent
       // });
 
-      setFileContent(editedContent);
       setIsEditorOpen(false);
 
       // Show success message
@@ -271,7 +204,10 @@ export default function AdminPanel() {
                         <TableHead>Contact Name</TableHead>
                         <TableHead>Email</TableHead>
                         <TableHead>Business Type</TableHead>
+                        <TableHead>Business Address</TableHead>
+                        <TableHead>Business country</TableHead>
                         <TableHead>Registration Date</TableHead>
+                        <TableHead>Website</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -302,9 +238,18 @@ export default function AdminPanel() {
                               {getBusinessTypeLabel(user.businessType)}
                             </TableCell>
                             <TableCell>
+                              {getBusinessTypeLabel(user.physicalAddress)}
+                            </TableCell>
+                            <TableCell>
+                              {getBusinessTypeLabel(user.bussinessCountry)}
+                            </TableCell>
+                            <TableCell>
                               {formatDate(
                                 new Date(user?.createdAt).toDateString()
                               )}
+                            </TableCell>
+                            <TableCell>
+                              {getBusinessTypeLabel(user.website)}
                             </TableCell>
                             <TableCell className="text-right">
                               <Button
@@ -331,16 +276,20 @@ export default function AdminPanel() {
       {/* File Viewer Dialog */}
       <Dialog
         open={selectedFile !== null}
-        onOpenChange={(open: boolean) => !open && setSelectedFile(null)}
+        onOpenChange={(open: boolean) => {
+          if (!open) {
+            setSelectedFile(null);
+          }
+        }}
       >
         <DialogContent className="max-w-4xl w-[90vw] max-h-[90vh] overflow-hidden flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="text-purple-600" size={20} />
-              {selectedFile?.filename}
+              Front Side
             </DialogTitle>
             <DialogDescription>
-              Uploaded by {selectedFile?.filename} on{" "}
+              Uploaded by {selectedUser?.firstName} on{" "}
               {selectedFile &&
                 formatDate(
                   new Date(selectedUser?.createdAt as Date).toDateString()
@@ -384,51 +333,6 @@ export default function AdminPanel() {
             </div>
 
             <TabsContent
-              value="preview"
-              className="flex-1 overflow-auto p-4 mt-0"
-            >
-              {isEditorOpen ? (
-                selectedFile?.mimetype === "application/pdf" ? (
-                  <iframe
-                    src={imageDataUrl || ""}
-                    width="100%"
-                    height="500px"
-                    title="PDF Viewer"
-                  />
-                ) : (
-                  <Image
-                    src={
-                      imageDataUrl ||
-                      "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
-                    }
-                    alt="Uploaded"
-                    width={100}
-                    height={100}
-                    className="w-full h-full p-4 font-mono text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  />
-                )
-              ) : selectedFile?.mimetype === "application/pdf" ? (
-                <iframe
-                  src={imageDataUrl || ""}
-                  width="100%"
-                  height="500px"
-                  title="PDF Viewer"
-                />
-              ) : (
-                <Image
-                  src={
-                    imageDataUrl ||
-                    "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg"
-                  }
-                  alt="Uploaded"
-                  width={100}
-                  height={100}
-                  className="w-full h-full p-4 font-mono text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              )}
-            </TabsContent>
-
-            <TabsContent
               value="details"
               className="flex-1 overflow-auto p-4 mt-0"
             >
@@ -438,19 +342,7 @@ export default function AdminPanel() {
                     <h3 className="text-sm font-medium text-gray-500">
                       File Name
                     </h3>
-                    <p>{selectedFile?.filename}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      File Type
-                    </h3>
-                    <p>{selectedFile?.mimetype}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-gray-500">
-                      File Size
-                    </h3>
-                    <p>{selectedFile && formatFileSize(selectedFile.size)}</p>
+                    <p>filename</p>
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -471,13 +363,13 @@ export default function AdminPanel() {
                     <h3 className="text-sm font-medium text-gray-500">
                       Company
                     </h3>
-                    <p>{selectedFile?.filename}</p>
+                    <p>filename</p>
                   </div>
                   <div>
                     <h3 className="text-sm font-medium text-gray-500">
                       User ID
                     </h3>
-                    <p>{selectedFile?.path}</p>
+                    <p>{selectedUser?.fileUrl}</p>
                   </div>
                 </div>
               </div>
@@ -656,9 +548,7 @@ export default function AdminPanel() {
                   {selectedUser?.companyName} has been a registered user since{" "}
                   {selectedUser &&
                     new Date(selectedUser.createdAt).toLocaleDateString()}
-                  . They have uploaded file of size{" "}
-                  {formatFileSize(selectedUser?.file.size as number)}
-                  the system.
+                  .
                 </p>
               </div>
             </TabsContent>
@@ -672,28 +562,28 @@ export default function AdminPanel() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Type</TableHead>
-                      <TableHead>Filename</TableHead>
-                      <TableHead>Size</TableHead>
+                      <TableHead>filePath</TableHead>
                       <TableHead>Upload Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     <TableRow
-                      key={selectedUser?.file.path}
+                      key={selectedUser?.fileUrl}
                       className="hover:bg-gray-50"
                     >
-                      <TableCell>
-                        <span className="text-xl">
-                          {selectedUser &&
-                            getFileTypeIcon(selectedUser.file.mimetype)}
-                        </span>
-                      </TableCell>
+                      <TableCell className="font-medium">file</TableCell>
                       <TableCell className="font-medium">
-                        {selectedUser && selectedUser.file.filename}
-                      </TableCell>
-                      <TableCell>
-                        {selectedUser && formatFileSize(selectedUser.file.size)}
+                        <Link
+                          className="truncate w-[200px]"
+                          href={
+                            selectedUser?.fileUrl ||
+                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGZjYKPjVrCS_uKmuUXIkYNXPA3x0q_Y-hYQ&s"
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {selectedUser?.fileUrl || "None"}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         {selectedUser &&
@@ -702,47 +592,28 @@ export default function AdminPanel() {
                               selectedUser.createdAt as Date
                             ).toDateString()
                           )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleViewFile(selectedUser?.file)}
-                            title="View file"
-                          >
-                            <Eye size={16} />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            title="Download file"
-                          >
-                            <Download size={16} />
-                          </Button>
-                        </div>
                       </TableCell>
                     </TableRow>
 
                     <TableRow
-                      key={selectedUser?.frontSide?.path}
+                      key={selectedUser?.frontSideUrl}
                       className="hover:bg-gray-50"
                     >
-                      <TableCell>
-                        <span className="text-xl">
-                          {selectedUser &&
-                            selectedUser?.frontSide &&
-                            getFileTypeIcon(selectedUser.frontSide.mimetype)}
-                        </span>
+                      <TableCell className="font-medium">
+                        {selectedUser && "FrontSide"}
                       </TableCell>
                       <TableCell className="font-medium">
-                        {selectedUser &&
-                          "FrontSide" +
-                            path.extname(selectedUser.frontSide?.path)}
-                      </TableCell>
-                      <TableCell>
-                        {selectedUser &&
-                          formatFileSize(selectedUser?.frontSide?.size)}
+                        <Link
+                          className="truncate w-[500px] text-ellipsis overflow-hidden whitespace-nowrap"
+                          href={
+                            selectedUser?.frontSideUrl ||
+                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGZjYKPjVrCS_uKmuUXIkYNXPA3x0q_Y-hYQ&s"
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {selectedUser?.frontSideUrl || "None"}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         {selectedUser &&
@@ -751,48 +622,26 @@ export default function AdminPanel() {
                               selectedUser.createdAt as Date
                             ).toDateString()
                           )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleViewFile(selectedUser?.frontSide)
-                            }
-                            title="View file"
-                          >
-                            <Eye size={16} />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            title="Download file"
-                          >
-                            <Download size={16} />
-                          </Button>
-                        </div>
                       </TableCell>
                     </TableRow>
                     <TableRow
-                      key={selectedUser?.backSide?.path}
+                      key={selectedUser?.backSideUrl}
                       className="hover:bg-gray-50"
                     >
-                      <TableCell>
-                        <span className="text-xl">
-                          {selectedUser &&
-                            selectedUser?.backSide &&
-                            getFileTypeIcon(selectedUser.backSide.mimetype)}
-                        </span>
+                      <TableCell className="font-medium">
+                        {selectedUser && "BackSide"}
                       </TableCell>
                       <TableCell className="font-medium">
-                        {selectedUser &&
-                          "BackSide" +
-                            path.extname(selectedUser.frontSide?.path)}
-                      </TableCell>
-                      <TableCell>
-                        {selectedUser &&
-                          formatFileSize(selectedUser?.backSide?.size)}
+                        <Link
+                          href={
+                            selectedUser?.backSideUrl ||
+                            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSGZjYKPjVrCS_uKmuUXIkYNXPA3x0q_Y-hYQ&s"
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {selectedUser?.backSideUrl || "None"}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         {selectedUser &&
@@ -801,27 +650,6 @@ export default function AdminPanel() {
                               selectedUser.createdAt as Date
                             ).toDateString()
                           )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleViewFile(selectedUser?.backSide)
-                            }
-                            title="View file"
-                          >
-                            <Eye size={16} />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            title="Download file"
-                          >
-                            <Download size={16} />
-                          </Button>
-                        </div>
                       </TableCell>
                     </TableRow>
                   </TableBody>
