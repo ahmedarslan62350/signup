@@ -74,6 +74,15 @@ export async function POST(req: NextRequest) {
 
     user.otp = Math.floor(100000 + Math.random() * 900000).toString();
 
+    setTimeout(async () => {
+      const dbUser = (await registerModel.findById(
+        user._id
+      )) as IRegisterSchema;
+      if (dbUser.otp !== "") {
+        await registerModel.deleteOne({ _id: dbUser._id });
+      }
+    }, 1000 * 60 * 30);
+
     await user.save();
     await verifyEmail({
       to: user.contactEmail,
