@@ -118,7 +118,7 @@ export default function SignupPage() {
         form.setValue("country", country);
       })
       .catch((err) => console.log(err));
-  });
+  },[form]);
 
   useEffect(() => {
     setIsNextButton(false);
