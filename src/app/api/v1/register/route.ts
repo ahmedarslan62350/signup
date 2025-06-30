@@ -3,7 +3,6 @@ import connectMongo from "@/lib/dbConfig";
 import { NextRequest, NextResponse } from "next/server";
 import { formSchema } from "@/schemas/signupForm";
 import { ApiError } from "next/dist/server/api-utils";
-import { verifyEmail } from "@/config/emailService";
 
 export async function POST(req: NextRequest) {
   await connectMongo();
@@ -72,25 +71,7 @@ export async function POST(req: NextRequest) {
       frontSideUrl: data.frontSideUrl,
     }) as IRegisterSchema;
 
-    user.otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    setTimeout(async () => {
-      const dbUser = (await registerModel.findById(
-        user._id
-      )) as IRegisterSchema;
-      if (dbUser.otp !== "") {
-        await registerModel.deleteOne({ _id: dbUser._id });
-      }
-    }, 1000 * 60 * 30);
-
     await user.save();
-    await verifyEmail({
-      to: user.contactEmail,
-      data: user,
-      subject: "hello",
-      text: "OTP",
-    });
-
     return NextResponse.json({
       success: true,
       message: "User created successfully.",

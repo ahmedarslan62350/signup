@@ -167,54 +167,64 @@ export default function SignupPage() {
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
-    const f = new FormData();
-
-    f.append("additionalInfo", values.additionalInfo || "");
-    f.append("agentsNumber", values.agentsNumber || "");
-    f.append("businessType", bussinessSelectValue || "");
-    f.append("campaign", values.campaign || "");
-    f.append("companyName", values.companyName || "");
-    f.append("contactAddress", values.contactAddress || "");
-    f.append("contactEmail", values.contactEmail || "");
-    f.append("firstName", values.firstName || "");
-    f.append("lastName", values.lastName || "");
-    f.append("title", values.title || "");
-    f.append("state", values.state || "");
-    f.append("zipCode", values.zipCode || "");
-    f.append("country", values.country);
-    f.append("contactPhone", values.contactPhone || "");
-    f.append("ipAddress", values.ipAddress || "");
-    f.append("physicalAddress", values.physicalAddress || "");
-    f.append("portsNumber", values.portsNumber || "");
-    f.append("website", values.website || "");
-    f.append("nationalId", values.nationalId || "");
-    f.append("bussinessCountry", values.bussinessCountry || "");
-
-    const uploadedFiles = await Promise.all([
-      frontSide ? uploadToImageKit(frontSide) : null,
-      backSide ? uploadToImageKit(backSide) : null,
-      file ? uploadToImageKit(file) : null,
-    ]);
-
-    const [frontSideUrl, backSideUrl, fileUrl] = uploadedFiles;
-
-    if (frontSide) f.append("frontSideUrl", frontSideUrl as string);
-    if (backSideUrl) f.append("backSideUrl", backSideUrl);
-    if (fileUrl) f.append("fileUrl", fileUrl);
 
     try {
+      // Prepare FormData
+      const f = new FormData();
+      const fieldMap: Record<string, string | undefined> = {
+        additionalInfo: values.additionalInfo,
+        agentsNumber: values.agentsNumber,
+        businessType: bussinessSelectValue,
+        campaign: values.campaign,
+        companyName: values.companyName,
+        contactAddress: values.contactAddress,
+        contactEmail: values.contactEmail,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        title: values.title,
+        state: values.state,
+        zipCode: values.zipCode,
+        country: values.country,
+        contactPhone: values.contactPhone,
+        ipAddress: values.ipAddress,
+        physicalAddress: values.physicalAddress,
+        portsNumber: values.portsNumber,
+        website: values.website,
+        nationalId: values.nationalId,
+        bussinessCountry: values.bussinessCountry,
+      };
+
+      // Append fields
+      Object.entries(fieldMap).forEach(([key, value]) => {
+        f.append(key, value ?? "");
+      });
+
+      // Upload files concurrently
+      const [frontSideUrl, backSideUrl, fileUrl] = await Promise.all([
+        frontSide && uploadToImageKit(frontSide),
+        backSide && uploadToImageKit(backSide),
+        file && uploadToImageKit(file),
+      ]);
+
+      // Append file URLs
+      if (frontSideUrl) f.append("frontSideUrl", frontSideUrl);
+      if (backSideUrl) f.append("backSideUrl", backSideUrl);
+      if (fileUrl) f.append("fileUrl", fileUrl);
+
+      // Submit data
       const { data } = await axios.post("/api/v1/register", f);
+
       if (!data.success) {
-        toast.error(data.message);
+        toast.error(data.message || "Submission failed.");
         return;
       }
 
-      await setCookie("email", form.getValues("contactEmail"));
+      await setCookie("email", values.contactEmail);
       form.reset();
-      router.replace("/verify");
+      router.replace("/success");
     } catch (error) {
-      console.log(error);
-      toast.error("Error while submiting");
+      console.error(error);
+      toast.error("Error while submitting");
     } finally {
       setFormSubmitted(true);
       setIsLoading(false);
