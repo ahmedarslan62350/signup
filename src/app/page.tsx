@@ -40,6 +40,10 @@ export default function SignupPage() {
 
   const [formStep, setFormStep] = useState(0);
   const [bussinessSelectValue, setBussinessSelectValue] = useState("");
+  const [dncScrubValue, setDncScrubValue] = useState<"yes" | "no" | "">("");
+  const [typeOfAgents, setTypeOfAgents] = useState<
+    "voice" | "bots" | "avatar" | ""
+  >("");
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [frontSide, setFrontSide] = useState<File | null>(null);
@@ -94,6 +98,8 @@ export default function SignupPage() {
       fileUrl: "",
       backSideUrl: "",
       frontSideUrl: "",
+      dncScrub: "no",
+      typeOfAgents: "voice",
     },
   });
 
@@ -118,18 +124,15 @@ export default function SignupPage() {
         form.setValue("country", country);
       })
       .catch((err) => console.log(err));
-  },[form]);
+  }, [form]);
 
   useEffect(() => {
     setIsNextButton(false);
     const isStepValid = () => {
       if (formStep === 0) {
-        return [
-          watchPhysicalAddress,
-          watchCompanyName,
-          website,
-          bussinessCountry,
-        ].every((field) => field.trim() !== "");
+        return [watchPhysicalAddress, watchCompanyName, bussinessCountry].every(
+          (field) => field.trim() !== "",
+        );
       } else if (formStep === 1) {
         return [
           firstName,
@@ -192,6 +195,8 @@ export default function SignupPage() {
         website: values.website,
         nationalId: values.nationalId,
         bussinessCountry: values.bussinessCountry,
+        dncScrub: dncScrubValue,
+        typeOfAgents: typeOfAgents,
       };
 
       // Append fields
@@ -294,6 +299,10 @@ export default function SignupPage() {
                       setIsloading={setIsLoading}
                       setRadio={setRadio}
                       watchCountry={watchCountry}
+                      dncScrubValue={dncScrubValue}
+                      setDncScrubValue={setDncScrubValue}
+                      typeOfAgents={typeOfAgents}
+                      setTypeOfAgents={setTypeOfAgents}
                     />
                   )}
 
@@ -312,6 +321,10 @@ export default function SignupPage() {
                       setIsloading={setIsLoading}
                       setRadio={setRadio}
                       watchCountry={watchCountry}
+                      dncScrubValue={dncScrubValue}
+                      setDncScrubValue={setDncScrubValue}
+                      typeOfAgents={typeOfAgents}
+                      setTypeOfAgents={setTypeOfAgents}
                     />
                   )}
 
@@ -330,6 +343,10 @@ export default function SignupPage() {
                       setIsloading={setIsLoading}
                       setRadio={setRadio}
                       watchCountry={watchCountry}
+                      dncScrubValue={dncScrubValue}
+                      setDncScrubValue={setDncScrubValue}
+                      typeOfAgents={typeOfAgents}
+                      setTypeOfAgents={setTypeOfAgents}
                     />
                   )}
                 </div>

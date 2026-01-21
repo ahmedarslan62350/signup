@@ -142,7 +142,9 @@ export default function AdminPanel() {
             .toLowerCase()
             .includes(userSearchTerm.toLowerCase()) ||
           user.firstName.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
-          user.contactEmail.toLowerCase().includes(userSearchTerm.toLowerCase())
+          user.contactEmail
+            .toLowerCase()
+            .includes(userSearchTerm.toLowerCase()),
       )
     : [];
 
@@ -207,6 +209,8 @@ export default function AdminPanel() {
                         <TableHead>Business Address</TableHead>
                         <TableHead>Business country</TableHead>
                         <TableHead>Registration Date</TableHead>
+                        <TableHead>DNC Scrub</TableHead>
+                        <TableHead>Types Of Agents</TableHead>
                         <TableHead>Website</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
@@ -245,8 +249,14 @@ export default function AdminPanel() {
                             </TableCell>
                             <TableCell>
                               {formatDate(
-                                new Date(user?.createdAt).toDateString()
+                                new Date(user?.createdAt).toDateString(),
                               )}
+                            </TableCell>
+                            <TableCell>
+                              {getBusinessTypeLabel(user.dncScrub) || "-"}
+                            </TableCell>
+                            <TableCell>
+                              {getBusinessTypeLabel(user.typeOfAgents) || "-"}
                             </TableCell>
                             <TableCell>
                               {getBusinessTypeLabel(user.website)}
@@ -292,7 +302,7 @@ export default function AdminPanel() {
               Uploaded by {selectedUser?.firstName} on{" "}
               {selectedFile &&
                 formatDate(
-                  new Date(selectedUser?.createdAt as Date).toDateString()
+                  new Date(selectedUser?.createdAt as Date).toDateString(),
                 )}
             </DialogDescription>
           </DialogHeader>
@@ -354,8 +364,8 @@ export default function AdminPanel() {
                       {selectedFile &&
                         formatDate(
                           new Date(
-                            selectedUser?.createdAt as Date
-                          ).toDateString()
+                            selectedUser?.createdAt as Date,
+                          ).toDateString(),
                         )}
                     </p>
                   </div>
@@ -446,7 +456,7 @@ export default function AdminPanel() {
                         <p className="text-base">
                           {selectedUser &&
                             formatDate(
-                              new Date(selectedUser.createdAt).toDateString()
+                              new Date(selectedUser.createdAt).toDateString(),
                             )}
                         </p>
                       </div>
@@ -595,8 +605,8 @@ export default function AdminPanel() {
                         {selectedUser &&
                           formatDate(
                             new Date(
-                              selectedUser.createdAt as Date
-                            ).toDateString()
+                              selectedUser.createdAt as Date,
+                            ).toDateString(),
                           )}
                       </TableCell>
                     </TableRow>
@@ -625,8 +635,8 @@ export default function AdminPanel() {
                         {selectedUser &&
                           formatDate(
                             new Date(
-                              selectedUser.createdAt as Date
-                            ).toDateString()
+                              selectedUser.createdAt as Date,
+                            ).toDateString(),
                           )}
                       </TableCell>
                     </TableRow>
@@ -653,8 +663,8 @@ export default function AdminPanel() {
                         {selectedUser &&
                           formatDate(
                             new Date(
-                              selectedUser.createdAt as Date
-                            ).toDateString()
+                              selectedUser.createdAt as Date,
+                            ).toDateString(),
                           )}
                       </TableCell>
                     </TableRow>

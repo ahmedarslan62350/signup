@@ -15,6 +15,8 @@ export const formSchema = z.object({
   contactAddress: z.string(),
   businessType: z.string(),
   agentsNumber: z.string(),
+  dncScrub: z.enum(["yes", "no"]),
+  typeOfAgents: z.enum(["voice", "bots", "avatar"]),
   portsNumber: z.string(),
   ipAddress: z.string(),
   campaign: z.string(),

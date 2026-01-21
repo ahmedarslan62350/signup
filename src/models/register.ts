@@ -16,6 +16,8 @@ export interface IRegisterSchema extends Document {
   agentsNumber?: string;
   portsNumber?: string;
   country: string;
+  dncScrub: string;
+  typeOfAgents: string;
   ipAddress?: string;
   otp: string;
   campaign: string;
@@ -65,6 +67,8 @@ const formSchema = new Schema<IRegisterSchema>(
     agentsNumber: { type: String, required: false },
     portsNumber: { type: String, required: false },
     ipAddress: { type: String, required: false },
+    dncScrub: { type: String, required: true },
+    typeOfAgents: { type: String, required: true },
     campaign: { type: String, required: true },
     additionalInfo: { type: String, required: false },
     nationalId: { type: String },

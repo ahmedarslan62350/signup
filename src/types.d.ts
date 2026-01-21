@@ -8,6 +8,8 @@ export interface FormStepArgs {
   radio: string;
   isLoading: boolean;
   isNextButton: boolean;
+  dncScrubValue: string;
+  typeOfAgents: string;
   setBussinessSelectValue: React.Dispatch<React.SetStateAction<string>>;
   setRadio: React.Dispatch<React.SetStateAction<string>>;
   setIsloading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,5 +18,7 @@ export interface FormStepArgs {
   handleBackSideChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleFrontSideChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  setDncScrubValue: React.Dispatch<React.SetStateAction<"yes" | "no" | "">>;
+  setTypeOfAgents: React.Dispatch<React.SetStateAction<"voice" | "bots" | "avatar" | "">>;
   getCountryIdentityRecognitionMethod?: () => string;
 }

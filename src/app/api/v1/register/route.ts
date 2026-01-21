@@ -40,6 +40,8 @@ export async function POST(req: NextRequest) {
       fileUrl: formData.get("fileUrl") || "",
       frontSideUrl: formData.get("frontSideUrl") || "",
       backSideUrl: formData.get("backSideUrl") || "",
+      dncScrub: formData.get("dncScrub") as string,
+      typeOfAgents: formData.get("typeOfAgents") as string,
     };
 
     const validation = formSchema.safeParse(extractedData);

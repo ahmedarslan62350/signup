@@ -36,6 +36,10 @@ const FormStepThree = ({
   setRadio,
   radio,
   setFormStep,
+  dncScrubValue,
+  setDncScrubValue,
+  typeOfAgents,
+  setTypeOfAgents,
 }: FormStepArgs) => {
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -163,34 +167,113 @@ const FormStepThree = ({
         </motion.div>
 
         {bussinessSelectValue === "contact_center" ? (
-          <motion.div variants={itemVariants} className="space-y-2">
-            <FormField
-              control={form.control}
-              name="agentsNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-purple-800">
-                    Number Of Agents
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
-                      required
-                      placeholder="No of agents"
-                      type="number"
-                      {...field}
-                    />
-                  </FormControl>
-                  {form.formState.errors.agentsNumber && (
-                    <FormDescription>
-                      {form.formState.errors.agentsNumber.message}
-                    </FormDescription>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </motion.div>
+          <>
+            <motion.div variants={itemVariants} className="space-y-2">
+              <FormField
+                control={form.control}
+                name="agentsNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-purple-800">
+                      Number Of Agents
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        className="border-blue-200 focus:border-purple-500 focus:ring-purple-500"
+                        required
+                        placeholder="No of agents"
+                        type="number"
+                        {...field}
+                      />
+                    </FormControl>
+                    {form.formState.errors.agentsNumber && (
+                      <FormDescription>
+                        {form.formState.errors.agentsNumber.message}
+                      </FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="space-y-2">
+              <FormField
+                control={form.control}
+                name="dncScrub"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-purple-800">DNC Scrub</FormLabel>
+                    <FormControl>
+                      <Select
+                        required
+                        value={dncScrubValue}
+                        onValueChange={(val) => {
+                          if (val) {
+                            setDncScrubValue(val as "yes" | "no");
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="border-blue-200 focus:border-purple-500 focus:ring-purple-500 w-full">
+                          <SelectValue placeholder="Select YES or NO" />
+                        </SelectTrigger>
+                        <SelectContent {...field}>
+                          <SelectItem value="yes">YES</SelectItem>
+                          <SelectItem value="no">NO</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    {form.formState.errors.agentsNumber && (
+                      <FormDescription>
+                        {form.formState.errors.agentsNumber.message}
+                      </FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="space-y-2">
+              <FormField
+                control={form.control}
+                name="typeOfAgents"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-purple-800">
+                      Types Of Agents
+                    </FormLabel>
+                    <FormControl>
+                      <Select
+                        required
+                        value={typeOfAgents}
+                        onValueChange={(val) => {
+                          if (val) {
+                            setTypeOfAgents(val as "voice" | "avatar" | "bots");
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="border-blue-200 focus:border-purple-500 focus:ring-purple-500 w-full">
+                          <SelectValue placeholder="Select Agents Type" />
+                        </SelectTrigger>
+                        <SelectContent {...field}>
+                          <SelectItem value="voice">VOICE</SelectItem>
+                          <SelectItem value="avatar">AVATAR</SelectItem>
+                          <SelectItem value="bots">BOTS</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    {form.formState.errors.agentsNumber && (
+                      <FormDescription>
+                        {form.formState.errors.agentsNumber.message}
+                      </FormDescription>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </motion.div>
+          </>
         ) : null}
 
         {bussinessSelectValue === "reseller" ||
@@ -377,7 +460,7 @@ const FormStepThree = ({
             <Button
               disabled={!radio}
               type="submit"
-              onClick={()=>console.log(form.formState.errors)}
+              onClick={() => console.log(form.formState.errors)}
               className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
             >
               {isLoading ? "Loading..." : "Complete Signup"}
