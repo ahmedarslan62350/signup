@@ -259,7 +259,7 @@ export default function AdminPanel() {
                               {getBusinessTypeLabel(user.typeOfAgents) || "-"}
                             </TableCell>
                             <TableCell>
-                              {getBusinessTypeLabel(user.website)}
+                              {getBusinessTypeLabel(user.website) || "-"}
                             </TableCell>
                             <TableCell className="text-right">
                               <Button

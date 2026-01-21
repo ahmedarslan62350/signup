@@ -55,7 +55,7 @@ const formSchema = new Schema<IRegisterSchema>(
     companyName: { type: String, required: true },
     physicalAddress: { type: String, required: true },
     contactAddress: { type: String, required: true },
-    website: { type: String, required: true },
+    website: { type: String, required: false },
     contactEmail: { type: String, required: true },
     contactPhone: { type: String, required: true },
     firstName: { type: String, required: true, minlength: 2 },
