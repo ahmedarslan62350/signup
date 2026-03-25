@@ -3,12 +3,12 @@
 import type React from "react";
 import { Button } from "@/components/ui/button";
 import { logoutUser } from "@/lib/verifyPassword";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function AdminLayout(
   props: Readonly<{
     children: Readonly<React.ReactNode>;
-  }>
+  }>,
 ) {
   const { children } = props;
   const router = useRouter();
