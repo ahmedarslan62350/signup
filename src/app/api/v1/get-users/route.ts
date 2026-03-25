@@ -15,9 +15,12 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const data = (await jwt.verify(token.value, process.env.JWT_SECRET as string)) as IRegisterSchema;
+    const data = jwt.verify(
+      token.value,
+      process.env.JWT_SECRET as string,
+    ) as IRegisterSchema;
 
-    if (!data || data.role !== "admin") {
+    if (data?.role !== "admin") {
       return NextResponse.json({
         success: false,
         message: "Unauthorized",

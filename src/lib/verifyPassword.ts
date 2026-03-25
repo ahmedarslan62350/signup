@@ -1,19 +1,35 @@
-"use server"
+"use server";
 
 import { loginSchema } from "@/schemas/loginSchema";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
+
+const IP_STRING = process.env.IPS || "";
+const allowedIps = new Set(IP_STRING.split(",").map((s) => s.trim()));
 
 export async function verify(email: string, password: string) {
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+  const headersList = await headers();
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
+  console.log(ip);
+  
 
-  const { data } = loginSchema.safeParse({ email, password });
-
-  if (data?.email == ADMIN_EMAIL && data?.password == ADMIN_PASSWORD) {
-    const cookie = await cookies();
-    cookie.set("token", process.env.TOKEN || "");
-    return true;
+  if (!allowedIps.has(ip)) {
+    return { success: false, message: "Access denied from this IP" };
   }
 
-  return false;
+  const { data } = loginSchema.safeParse({ email, password });
+  const isAdmin =
+    data?.email === process.env.ADMIN_EMAIL &&
+    data?.password === process.env.ADMIN_PASSWORD;
+
+  if (isAdmin) {
+    const cookieStore = await cookies();
+    cookieStore.set("token", process.env.TOKEN || "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(Date.now() + 1000 * 60 * 60),
+    });
+    return { success: true };
+  }
+
+  return { success: false, message: "Wrong Credentials" };
 }

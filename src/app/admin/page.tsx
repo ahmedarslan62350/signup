@@ -87,16 +87,6 @@ export default function AdminPanel() {
     return new Date(dateString).toLocaleString();
   };
 
-  // const getFileTypeIcon = (type: string) => {
-  //   if (type.startsWith("image/")) return "🖼️";
-  //   if (type.startsWith("text/")) return "📄";
-  //   if (type.startsWith("application/pdf")) return "📑";
-  //   if (type.includes("document")) return "📝";
-  //   if (type.includes("spreadsheet")) return "📊";
-  //   if (type.includes("json")) return "🔧";
-  //   return "📁";
-  // };
-
   const getBusinessTypeLabel = (type: string) => {
     switch (type) {
       case "contact_center":
@@ -120,14 +110,7 @@ export default function AdminPanel() {
 
   const handleSaveFile = async () => {
     try {
-      // In a real app, you would save the edited content to your API
-      // await axios.put(`/api/admin/files/${selectedFile?.id}/content`, {
-      //   content: editedContent
-      // });
-
       setIsEditorOpen(false);
-
-      // Show success message
       toast("File saved successfully!");
     } catch (error) {
       console.error("Error saving file:", error);
@@ -446,7 +429,7 @@ export default function AdminPanel() {
                           National Id Card Number
                         </h4>
                         <p className="text-base">
-                          {selectedUser && selectedUser.nationalId}
+                          {selectedUser?.nationalId}
                         </p>
                       </div>
                       <div>
