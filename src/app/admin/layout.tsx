@@ -1,16 +1,23 @@
+"use client";
+
 import type React from "react";
-import type { Metadata } from "next";
+import { Button } from "@/components/ui/button";
+import { logoutUser } from "@/lib/verifyPassword";
+import { redirect, useRouter } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Admin Panel - User & File Management",
-  description: "Admin panel for managing users and files",
-};
+export default function AdminLayout(
+  props: Readonly<{
+    children: Readonly<React.ReactNode>;
+  }>
+) {
+  const { children } = props;
+  const router = useRouter();
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+  const logout = async () => {
+    const res = await logoutUser();
+    if (res.success) router.push("/");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       <header className="bg-white border-b border-gray-200 shadow-sm">
@@ -18,6 +25,8 @@ export default function AdminLayout({
           <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
             Admin Dashboard
           </h1>
+
+          <Button onClick={logout}>Logout</Button>
         </div>
       </header>
       <main>{children}</main>

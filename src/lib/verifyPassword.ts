@@ -10,7 +10,6 @@ export async function verify(email: string, password: string) {
   const headersList = await headers();
   const ip = headersList.get("x-forwarded-for")?.split(",")[0] || "unknown";
   console.log(ip);
-  
 
   if (!allowedIps.has(ip)) {
     return { success: false, message: "Access denied from this IP" };
@@ -32,4 +31,10 @@ export async function verify(email: string, password: string) {
   }
 
   return { success: false, message: "Wrong Credentials" };
+}
+
+export async function logoutUser() {
+  const cookieStore = await cookies();
+  cookieStore.delete("token");
+  return { success: true, message: "Logout Successful" };
 }
